@@ -14,7 +14,7 @@ services:
 
   # 2. NestJS Core
   backend-core:
-    build: ./backend-core
+    image: nadun845/backend-core:latest # Changed from build to image
     container_name: backend-core
     ports:
       - "3000:3000"
@@ -33,24 +33,36 @@ services:
 
   # 3. FastAPI AI Service
   backend-ai:
-    build: ./backend-ai
+    image: nadun845/backend-ai:latest # Changed from build to image
+    container_name: backend-ai
     ports:
       - "8000:8000"
     networks:
       - app-network
 
-  # 4. React Frontend
-  frontend:
-    build: ./frontend
-    container_name: react_frontend
-    ports:
-      - "5173:5173"
-    environment:
-      - VITE_API_URL=http://localhost:3000
+  # 4. Watchtower (The "Automation Secret")
+  # This will automatically update your containers when you push to GitHub!
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30 --cleanup
     networks:
       - app-network
 
-# --- GLOBAL SETTINGS (No indentation here) ---
+  # 4. React Frontend
+  # frontend:
+  #   image: nadun845/frontend:latest # Changed from build
+  #   container_name: react_frontend
+  #   ports:
+  #     - "5173:80" # Map local 5173 to Nginx port 80
+  #   environment:
+  #     - VITE_API_URL=http://localhost:3000
+  #   networks:
+  #     - app-network
+
+# --- GLOBAL SETTINGS ---
 networks:
   app-network:
     driver: bridge
